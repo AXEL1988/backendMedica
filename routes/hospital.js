@@ -6,21 +6,33 @@ var app = express();
 
 app.get('/', (req, res, next) => {
 
-    Hospital.find({ },(err, hospitales) => {
+    var desde = req.query.desde || 0;
+        desde = Number(desde);
 
-        if ( err ) {
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'No se pudo obtener los hospitales',
-                errors: err
-            });               
+    Hospital.find({})
+    .skip(desde)
+    .limit(5)
+    .populate({path: 'usuario',select: 'nombre email'})
+    .exec(
+        (err, hospitales) => {
+
+            if ( err ) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'No se pudo obtener los hospitales',
+                    errors: err
+                });               
+            }
+    
+            Hospital.count({}, (err, conteo) => {
+                res.status(200).json({
+                    ok: true,
+                    hospitales: hospitales,
+                    total: conteo           
+                });
+            });
         }
-
-        res.status(200).json({
-            ok: true,
-            hospitales: hospitales            
-        });
-    });
+    )
 });
 
 
@@ -33,7 +45,7 @@ app.post('/', mdAutenticacion.verificaToken, (req, res) =>{
 
     var hospital = new Hospital({
         nombre: body.nombre,
-        id: req.usuario._id
+        usuario: req.usuario._id
     });
 
     hospital.save( (err, hospitalGuardado) => {
