@@ -5,3 +5,4 @@
 5. Install mongoose-unique-validator --save
 6. Install bcryptjs --save
 7. Install jsonwebtoken --save
+8. Install --save express-fileupload
