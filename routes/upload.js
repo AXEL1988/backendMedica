@@ -1,6 +1,12 @@
 var express = require('express');
 var fileUpload = require('express-fileupload');
 var app = express();
+var fs = require('fs');
+
+//import Models
+var Usuario = require('../models/usuarios');
+var Medico = require('../models/medicos');
+var Hospitales = require('../models/hospitales');
 
 app.use(fileUpload());
 
@@ -58,14 +64,102 @@ app.put('/:tipo/:id', ( req, res, next ) => {
           errors: err
       });
       }
-      
-          res.status(200).json({
-              ok: true,
-              mensaje: 'Petición realizada correctamente',
-              nombre: extensionArchivo
-          });
+      subirPorTipo(tipo, id, nombreArchivo, res );
     });
-
 });
+
+//subir por tipo
+
+function subirPorTipo( tipo, id, nombreArchivo, res) {
+
+  if (tipo === 'usuarios') {
+    
+    Usuario.findById( id, (err, usuario ) => {
+
+      if (!usuario) {
+        return res.status(400).json({
+          ok: true,
+          mensaje: 'El id de usuario no existe',
+          errors: { message: 'El id del usuario no existe!'}
+        });
+      }
+      var pathViejo = './upload/usuarios/' + usuario.img;
+
+      //si existe elimina la anterior
+      if( fs.existsSync(pathViejo)){
+        fs.unlink(pathViejo);
+      }
+
+      usuario.img = nombreArchivo;
+      usuario.save( (err, usuarioActualizado) => {
+        return res.status(200).json({
+          ok: true,
+          mensaje: 'Petición realizada correctamente',
+          usuario: usuarioActualizado
+      });
+      });
+
+    });
+  }
+
+  if (tipo === 'medicos') {
+
+    Medico.findById( id, (err, medico ) => {
+  
+      if (!medico) {
+        return res.status(400).json({
+          ok: true,
+          mensaje: 'El id de medico no existe',
+          errors: { message: 'El id del medico no existe!'}
+        });
+      }
+      var pathViejo = './upload/medicos/' + medico.img;
+
+      //si existe elimina la anterior
+      if( fs.existsSync(pathViejo)){
+        fs.unlink(pathViejo);
+      }
+
+      medico.img = nombreArchivo;
+      medico.save( (err, medicoActualizado) => {
+        return res.status(200).json({
+          ok: true,
+          mensaje: 'Petición realizada correctamente',
+          medico: medicoActualizado
+      });
+      });
+    });
+  }
+
+  if (tipo === 'hospitales') {
+    Usuario.findById( id, (err, hospital ) => {
+
+      if (!hospital) {
+        return res.status(400).json({
+          ok: true,
+          mensaje: 'El id de hospital no existe',
+          errors: { message: 'El id del hospital no existe!'}
+        });
+      }
+      var pathViejo = './upload/medicos/' + hospital.img;
+
+      //si existe elimina la anterior
+      if( fs.existsSync(pathViejo)){
+        fs.unlink(pathViejo);
+      }
+
+      hospital.img = nombreArchivo;
+      hospital.save( (err, hospitalActualizado) => {
+        return res.status(200).json({
+          ok: true,
+          mensaje: 'Petición realizada correctamente',
+          hospital: hospitalActualizado
+      });
+      });
+
+    });
+  }
+
+}
 
 module.exports = app;
