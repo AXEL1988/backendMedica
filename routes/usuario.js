@@ -40,8 +40,8 @@ app.get('/', (req, res, next) => {
 //Method create User
 //To create user you should install body-parser
 
-app.post('/', mdAutenticacion.verificaToken, (req, res) =>{
-    
+// app.post('/', mdAutenticacion.verificaToken, (req, res) =>{
+app.post('/', (req, res) =>{
     var body = req.body;
 
     var usuario = new Usuario({
